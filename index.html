@@ -9,51 +9,20 @@
 <title>Мой Салон</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
-    background: #f2f2f7;
-    color: #1c1c1e;
-    padding-bottom: 80px;
-    min-height: 100vh;
-  }
-  header {
-    background: #1a1a1a;
-    color: #fff;
-    padding: 20px 16px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding-top: max(20px, env(safe-area-inset-top));
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif; background: #f2f2f7; color: #1c1c1e; padding-bottom: 90px; min-height: 100vh; }
+  header { background: #1a1a1a; color: #fff; padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100; padding-top: max(20px, env(safe-area-inset-top)); }
   header h1 { font-size: 22px; font-weight: 700; }
   header p { font-size: 13px; opacity: 0.6; margin-top: 2px; }
   .container { padding: 16px; }
   .view { display: none; }
   .view.active { display: block; }
-  .btn {
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 12px;
-    transition: opacity 0.2s;
-  }
+  .btn { background: #1a1a1a; color: #fff; border: none; padding: 14px 20px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 12px; }
   .btn:active { opacity: 0.7; }
   .btn.secondary { background: #e5e5ea; color: #1a1a1a; }
   .btn.danger { background: #ff3b30; }
+  .btn.green { background: #34c759; }
   .btn-small { padding: 8px 14px; font-size: 14px; width: auto; margin: 0; }
-  .card {
-    background: #fff;
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
+  .card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
   .card h3 { font-size: 17px; margin-bottom: 6px; }
   .card .sub { font-size: 14px; color: #8e8e93; margin-bottom: 4px; }
   .card .meta { font-size: 13px; color: #8e8e93; margin-top: 8px; }
@@ -61,113 +30,52 @@
   .price { font-weight: 700; color: #1a1a1a; font-size: 16px; }
   .empty { text-align: center; padding: 60px 20px; color: #8e8e93; }
   .empty .icon { font-size: 48px; margin-bottom: 12px; }
-  input, textarea, select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #e5e5ea;
-    border-radius: 10px;
-    font-size: 16px;
-    margin-bottom: 10px;
-    background: #fff;
-    font-family: inherit;
-  }
+  input, textarea, select { width: 100%; padding: 12px 14px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 16px; margin-bottom: 10px; background: #fff; font-family: inherit; }
   input:focus, textarea:focus, select:focus { outline: none; border-color: #1a1a1a; }
   label { display: block; font-size: 13px; color: #8e8e93; margin-bottom: 4px; font-weight: 500; }
   textarea { resize: vertical; min-height: 80px; }
-  nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid #e5e5ea;
-    display: flex;
-    padding-bottom: env(safe-area-inset-bottom);
-    z-index: 100;
-  }
-  nav button {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 10px 4px 8px;
-    font-size: 10px;
-    color: #8e8e93;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid #e5e5ea; display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+  nav button { flex: 1; background: none; border: none; padding: 8px 2px 6px; font-size: 9px; color: #8e8e93; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
   nav button.active { color: #1a1a1a; }
-  nav button .ico { font-size: 22px; line-height: 1; }
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    align-items: flex-end;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-  }
+  nav button .ico { font-size: 20px; line-height: 1; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; z-index: 1000; backdrop-filter: blur(4px); }
   .modal.active { display: flex; }
-  .modal-content {
-    background: #fff;
-    width: 100%;
-    border-radius: 20px 20px 0 0;
-    padding: 20px;
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-  }
+  .modal-content { background: #fff; width: 100%; border-radius: 20px 20px 0 0; padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .modal-header h2 { font-size: 20px; }
-  .close-btn {
-    background: #e5e5ea;
-    border: none;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    font-size: 18px;
-    cursor: pointer;
-    color: #1a1a1a;
-  }
+  .close-btn { background: #e5e5ea; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #1a1a1a; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .chip { background: #e5e5ea; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #1a1a1a; }
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #8e8e93;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 16px 0 8px;
-  }
-  .row-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .chip.green { background: #d1f5d8; color: #1a7a33; }
+  .chip.red { background: #ffe5e5; color: #ff3b30; }
+  .chip.yellow { background: #fff4d1; color: #a67c00; }
+  .section-title { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
+  .row-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .photo-item {
-    aspect-ratio: 1;
-    background: #e5e5ea;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
+  .photo-item { aspect-ratio: 1; background: #e5e5ea; border-radius: 12px; overflow: hidden; position: relative; }
   .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-  .photo-item .del {
-    position: absolute;
-    top: 6px; right: 6px;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: none;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    font-size: 14px;
-    cursor: pointer;
-  }
+  .photo-item .del { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 14px; cursor: pointer; }
+  .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-tabs button { flex-shrink: 0; background: #e5e5ea; color: #1a1a1a; border: none; padding: 8px 14px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .filter-tabs button.active { background: #1a1a1a; color: #fff; }
+  .stat-big { text-align: center; padding: 20px 0; }
+  .stat-big .label { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-big .value { font-size: 36px; font-weight: 800; color: #1a1a1a; margin-top: 4px; }
+  .stat-big .value.green { color: #34c759; }
+  .stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f2f2f7; font-size: 15px; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .name { color: #1c1c1e; }
+  .stat-row .num { font-weight: 600; }
+  .price-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 10px; background: #f9f9fb; border-radius: 10px; }
+  .price-input-row input[type="checkbox"] { width: auto; margin: 0; flex-shrink: 0; }
+  .price-input-row .svc-name { flex: 1; font-size: 15px; }
+  .price-input-row .price-field { width: 90px; margin: 0; padding: 6px 8px; font-size: 14px; }
+  .price-input-row .cur { font-size: 14px; color: #8e8e93; }
 </style>
 </head>
 <body>
-
-<header>
+ <header>
   <h1 id="page-title">Записи</h1>
   <p id="page-sub">Добро пожаловать!</p>
 </header>
@@ -194,6 +102,15 @@
     <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="addPhoto(event)">
     <div id="portfolio-grid" class="photo-grid"></div>
   </div>
+  <div id="view-income" class="view">
+    <div class="filter-tabs" id="income-filters">
+      <button class="active" onclick="setIncomePeriod('day', this)">День</button>
+      <button onclick="setIncomePeriod('week', this)">Неделя</button>
+      <button onclick="setIncomePeriod('month', this)">Месяц</button>
+      <button onclick="setIncomePeriod('year', this)">Год</button>
+    </div>
+    <div id="income-content"></div>
+  </div>
 </div>
 
 <nav>
@@ -212,6 +129,9 @@
   <button onclick="switchView('portfolio', this, 'Портфолио', 'Галерея работ')">
     <span class="ico">📸</span>Работы
   </button>
+  <button onclick="switchView('income', this, 'Доходы', 'Доход и прибыль')">
+    <span class="ico">💰</span>Доходы
+  </button>
 </nav>
 
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
@@ -225,10 +145,11 @@
 </div>
 
 <script>
-const DB = { clients: [], services: [], appointments: [], materials: [], recipes: [], portfolio: [] };
+const DB = { clients: [], services: [], appointments: [], materials: [], recipes: [], portfolio: [], materialUsages: [] };
 function load() {
   const saved = localStorage.getItem('salon_db');
   if (saved) Object.assign(DB, JSON.parse(saved));
+  if (!DB.materialUsages) DB.materialUsages = [];
 }
 function save() { localStorage.setItem('salon_db', JSON.stringify(DB)); }
 load();
@@ -254,6 +175,7 @@ function openModal(title, html) {
 }
 function closeModal() { document.getElementById('modal').classList.remove('active'); }
 
+/* ===== КЛИЕНТЫ ===== */
 function openClientModal(id) {
   const c = id ? DB.clients.find(x => x.id === id) : {};
   openModal(id ? 'Клиент' : 'Новый клиент', `
@@ -314,6 +236,7 @@ function renderClients() {
   `).join('');
 }
 
+/* ===== РЕЦЕПТЫ ===== */
 function openRecipeModal(clientId) {
   const c = DB.clients.find(x => x.id === clientId);
   const recipes = DB.recipes.filter(r => r.clientId === clientId);
@@ -355,12 +278,13 @@ function deleteRecipe(id, clientId) {
   save(); openRecipeModal(clientId);
 }
 
+/* ===== УСЛУГИ ===== */
 function openServiceModal(id) {
   const s = id ? DB.services.find(x => x.id === id) : {};
   openModal(id ? 'Услуга' : 'Новая услуга', `
     <label>Название</label>
     <input id="s-name" value="${escapeHtml(s.name || '')}" placeholder="Стрижка женская">
-    <label>Цена, ₽</label>
+    <label>Цена по прайсу, ₽</label>
     <input id="s-price" type="number" value="${s.price || ''}" placeholder="1500">
     <label>Длительность, мин</label>
     <input id="s-duration" type="number" value="${s.duration || ''}" placeholder="60">
@@ -403,6 +327,7 @@ function renderServices() {
   `).join('');
 }
 
+/* ===== МАТЕРИАЛЫ ===== */
 function openMaterialModal(id) {
   const m = id ? DB.materials.find(x => x.id === id) : {};
   openModal(id ? 'Материал' : 'Новый материал', `
@@ -451,7 +376,7 @@ function renderMaterials() {
             <h3>${escapeHtml(m.name)}</h3>
             <div class="sub">${m.quantity} ${escapeHtml(m.unit)}${m.price ? ' · ' + m.price + ' ₽/' + escapeHtml(m.unit) : ''}</div>
           </div>
-          ${low ? '<div class="chip" style="background:#ffe5e5;color:#ff3b30">мало</div>' : ''}
+          ${low ? '<div class="chip red">мало</div>' : ''}
         </div>
         <div class="row-actions">
           <button class="btn btn-small secondary" onclick="openMaterialModal('${m.id}')">Изменить</button>
@@ -467,21 +392,31 @@ function useMaterial(id) {
   const amount = parseFloat(prompt(`Сколько списать (${m.unit})?`, '10'));
   if (!amount || amount <= 0) return;
   m.quantity = Math.max(0, +(m.quantity - amount).toFixed(2));
+  DB.materialUsages.push({ id: uid(), materialId: m.id, amount, price: m.price, date: new Date().toISOString() });
   save(); renderAll();
 }
-
+</script>
+ <script>
+/* ===== ЗАПИСИ ===== */
 function openAppointmentModal(id) {
   const a = id ? DB.appointments.find(x => x.id === id) : {};
   const clientOpts = DB.clients.map(c => `<option value="${c.id}" ${a.clientId === c.id ? 'selected' : ''}>${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' '))}</option>`).join('');
-  const serviceCheckboxes = DB.services.map(s => `
-    <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:15px;color:#1a1a1a;">
-      <input type="checkbox" value="${s.id}" ${a.serviceIds?.includes(s.id) ? 'checked' : ''} style="width:auto;margin:0;" class="svc-check">
-      ${escapeHtml(s.name)} — ${s.price} ₽
-    </label>
-  `).join('');
+  const servicesHtml = DB.services.length ? DB.services.map(s => {
+    const checked = a.serviceIds?.includes(s.id);
+    const savedPrice = a.customPrices?.[s.id] ?? s.price;
+    return `
+      <div class="price-input-row">
+        <input type="checkbox" value="${s.id}" ${checked ? 'checked' : ''} class="svc-check" data-default="${s.price}" onchange="toggleSvcPrice(this)">
+        <span class="svc-name">${escapeHtml(s.name)}</span>
+        <input type="number" class="price-field" value="${savedPrice}" ${checked ? '' : 'disabled'} data-svc="${s.id}">
+        <span class="cur">₽</span>
+      </div>
+    `;
+  }).join('') : '<div class="sub" style="color:#8e8e93;font-size:14px;">Сначала добавьте услуги</div>';
   const defaultDate = a.date ? new Date(a.date) : new Date();
   const dateStr = defaultDate.toISOString().slice(0, 10);
   const timeStr = defaultDate.toTimeString().slice(0, 5);
+  const status = a.status || 'planned';
   openModal(id ? 'Запись' : 'Новая запись', `
     <label>Клиент</label>
     <select id="a-client"><option value="">— выберите —</option>${clientOpts}</select>
@@ -489,13 +424,30 @@ function openAppointmentModal(id) {
     <input id="a-date" type="date" value="${dateStr}">
     <label>Время</label>
     <input id="a-time" type="time" value="${timeStr}">
-    <div class="section-title">Услуги</div>
-    ${serviceCheckboxes || '<div class="sub" style="color:#8e8e93;font-size:14px;">Сначала добавьте услуги</div>'}
-    <label style="margin-top:12px;">Заметки</label>
+    <div class="section-title">Услуги и цены</div>
+    ${servicesHtml}
+    <label style="margin-top:12px;">Статус</label>
+    <select id="a-status">
+      <option value="planned" ${status === 'planned' ? 'selected' : ''}>🟡 Запланирована</option>
+      <option value="done" ${status === 'done' ? 'selected' : ''}>🟢 Выполнена</option>
+      <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>🔴 Отменена</option>
+    </select>
+    <label>Заметки</label>
     <textarea id="a-notes" placeholder="Пожелания клиента...">${escapeHtml(a.notes || '')}</textarea>
     <button class="btn" onclick="saveAppointment('${id || ''}')">Сохранить</button>
     ${id ? `<button class="btn danger" onclick="deleteAppointment('${id}')">Удалить запись</button>` : ''}
   `);
+}
+
+function toggleSvcPrice(checkbox) {
+  const row = checkbox.closest('.price-input-row');
+  const priceField = row.querySelector('.price-field');
+  if (checkbox.checked) {
+    priceField.disabled = false;
+    if (!priceField.value) priceField.value = checkbox.dataset.default;
+  } else {
+    priceField.disabled = true;
+  }
 }
 
 function saveAppointment(id) {
@@ -504,8 +456,22 @@ function saveAppointment(id) {
   const date = document.getElementById('a-date').value;
   const time = document.getElementById('a-time').value;
   if (!date || !time) return alert('Укажите дату и время');
-  const serviceIds = [...document.querySelectorAll('.svc-check:checked')].map(c => c.value);
-  const data = { clientId, date: new Date(date + 'T' + time).toISOString(), serviceIds, notes: document.getElementById('a-notes').value.trim(), status: 'planned' };
+  const serviceIds = [];
+  const customPrices = {};
+  document.querySelectorAll('.svc-check:checked').forEach(cb => {
+    const sid = cb.value;
+    serviceIds.push(sid);
+    const priceField = cb.closest('.price-input-row').querySelector('.price-field');
+    customPrices[sid] = +priceField.value || 0;
+  });
+  const data = {
+    clientId,
+    date: new Date(date + 'T' + time).toISOString(),
+    serviceIds,
+    customPrices,
+    notes: document.getElementById('a-notes').value.trim(),
+    status: document.getElementById('a-status').value
+  };
   if (id) Object.assign(DB.appointments.find(x => x.id === id), data);
   else DB.appointments.push({ id: uid(), ...data });
   save(); closeModal(); renderAll();
@@ -517,16 +483,16 @@ function deleteAppointment(id) {
   save(); closeModal(); renderAll();
 }
 
+function getAppointmentTotal(a) {
+  return (a.serviceIds || []).reduce((sum, sid) => sum + (a.customPrices?.[sid] ?? DB.services.find(s => s.id === sid)?.price ?? 0), 0);
+}
+
 function renderAppointments() {
   const el = document.getElementById('appointments-list');
   const list = DB.appointments.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
   if (!list.length) { el.innerHTML = `<div class="empty"><div class="icon">📅</div>Записей пока нет</div>`; return; }
   const groups = {};
-  list.forEach(a => {
-    const key = new Date(a.date).toDateString();
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(a);
-  });
+  list.forEach(a => { const key = new Date(a.date).toDateString(); if (!groups[key]) groups[key] = []; groups[key].push(a); });
   el.innerHTML = Object.entries(groups).map(([key, items]) => {
     const dateLabel = new Date(items[0].date).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
     return `
@@ -534,14 +500,19 @@ function renderAppointments() {
       ${items.map(a => {
         const c = DB.clients.find(x => x.id === a.clientId) || {};
         const services = (a.serviceIds || []).map(sid => DB.services.find(s => s.id === sid)).filter(Boolean);
-        const total = services.reduce((s, x) => s + x.price, 0);
+        const total = getAppointmentTotal(a);
         const time = new Date(a.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        let statusChip = '';
+        if (a.status === 'done') statusChip = '<span class="chip green">выполнена</span>';
+        else if (a.status === 'cancelled') statusChip = '<span class="chip red">отменена</span>';
+        else statusChip = '<span class="chip yellow">запланирована</span>';
         return `
           <div class="card">
             <div class="card-row">
               <div style="flex:1">
                 <h3>${time} · ${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' ') || 'Клиент')}</h3>
                 <div class="sub">${escapeHtml(c.phone || '')}</div>
+                <div class="chips">${statusChip}</div>
                 ${services.length ? `<div class="chips">${services.map(s => `<span class="chip">${escapeHtml(s.name)}</span>`).join('')}</div>` : ''}
                 ${a.notes ? `<div class="meta">📝 ${escapeHtml(a.notes)}</div>` : ''}
               </div>
@@ -557,6 +528,87 @@ function renderAppointments() {
   }).join('');
 }
 
+/* ===== ДОХОДЫ ===== */
+let incomePeriod = 'month';
+function setIncomePeriod(period, btn) {
+  incomePeriod = period;
+  document.querySelectorAll('#income-filters button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderIncome();
+}
+
+function getPeriodRange(period) {
+  const now = new Date();
+  const start = new Date(now);
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+  if (period === 'day') {
+    start.setHours(0, 0, 0, 0);
+  } else if (period === 'week') {
+    const day = start.getDay() || 7;
+    start.setDate(start.getDate() - day + 1);
+    start.setHours(0, 0, 0, 0);
+  } else if (period === 'month') {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+  } else if (period === 'year') {
+    start.setMonth(0, 1);
+    start.setHours(0, 0, 0, 0);
+  }
+  return { start, end };
+}
+
+function renderIncome() {
+  const el = document.getElementById('income-content');
+  const { start, end } = getPeriodRange(incomePeriod);
+  const doneAppts = DB.appointments.filter(a => {
+    const d = new Date(a.date);
+    return a.status === 'done' && d >= start && d <= end;
+  });
+  const income = doneAppts.reduce((s, a) => s + getAppointmentTotal(a), 0);
+  const materialsCost = DB.materialUsages.filter(u => {
+    const d = new Date(u.date);
+    return d >= start && d <= end;
+  }).reduce((s, u) => s + (u.amount * (u.price || 0)), 0);
+  const profit = income - materialsCost;
+  const avg = doneAppts.length ? Math.round(income / doneAppts.length) : 0;
+  const periodLabels = { day: 'За сегодня', week: 'За эту неделю', month: 'За этот месяц', year: 'За этот год' };
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="stat-big">
+        <div class="label">💵 Доход — ${periodLabels[incomePeriod]}</div>
+        <div class="value">${income.toLocaleString('ru-RU')} ₽</div>
+      </div>
+      <div class="stat-row"><span class="name">📦 Материалы</span><span class="num">− ${materialsCost.toLocaleString('ru-RU')} ₽</span></div>
+      <div class="stat-row"><span class="name"><b>💰 Чистая прибыль</b></span><span class="num green" style="color:#34c759">${profit.toLocaleString('ru-RU')} ₽</span></div>
+      <div class="stat-row"><span class="name">📋 Выполненных записей</span><span class="num">${doneAppts.length}</span></div>
+      <div class="stat-row"><span class="name">💳 Средний чек</span><span class="num">${avg.toLocaleString('ru-RU')} ₽</span></div>
+    </div>
+
+    ${doneAppts.length ? `
+      <div class="section-title">Выполненные записи за период</div>
+      ${doneAppts.sort((a, b) => new Date(b.date) - new Date(a.date)).map(a => {
+        const c = DB.clients.find(x => x.id === a.clientId) || {};
+        const total = getAppointmentTotal(a);
+        const dateStr = new Date(a.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+        return `
+          <div class="card">
+            <div class="card-row">
+              <div>
+                <h3>${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' ') || 'Клиент')}</h3>
+                <div class="sub">${dateStr}</div>
+              </div>
+              <div class="price">${total.toLocaleString('ru-RU')} ₽</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    ` : '<div class="empty"><div class="icon">💰</div>За этот период нет выполненных записей</div>'}
+  `;
+}
+
+/* ===== ПОРТФОЛИО ===== */
 function addPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -586,12 +638,14 @@ function renderPortfolio() {
   `).join('');
 }
 
+/* ===== ОБЩИЙ РЕНДЕР ===== */
 function renderAll() {
   renderAppointments();
   renderClients();
   renderServices();
   renderMaterials();
   renderPortfolio();
+  renderIncome();
 }
 renderAll();
 </script>
