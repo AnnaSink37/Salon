@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1a">
+<title>Мой Салон</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+    background: #f2f2f7;
+    color: #1c1c1e;
+    padding-bottom: 80px;
+    min-height: 100vh;
+  }
+  header {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 20px 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+  header h1 { font-size: 22px; font-weight: 700; }
+  header p { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+  .container { padding: 16px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .btn {
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 12px;
+    transition: opacity 0.2s;
+  }
+  .btn:active { opacity: 0.7; }
+  .btn.secondary { background: #e5e5ea; color: #1a1a1a; }
+  .btn.danger { background: #ff3b30; }
+  .btn-small { padding: 8px 14px; font-size: 14px; width: auto; margin: 0; }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .card h3 { font-size: 17px; margin-bottom: 6px; }
+  .card .sub { font-size: 14px; color: #8e8e93; margin-bottom: 4px; }
+  .card .meta { font-size: 13px; color: #8e8e93; margin-top: 8px; }
+  .card-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .price { font-weight: 700; color: #1a1a1a; font-size: 16px; }
+  .empty { text-align: center; padding: 60px 20px; color: #8e8e93; }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  input, textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e5e5ea;
+    border-radius: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    background: #fff;
+    font-family: inherit;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #1a1a1a; }
+  label { display: block; font-size: 13px; color: #8e8e93; margin-bottom: 4px; font-weight: 500; }
+  textarea { resize: vertical; min-height: 80px; }
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid #e5e5ea;
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 100;
+  }
+  nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 4px 8px;
+    font-size: 10px;
+    color: #8e8e93;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  nav button.active { color: #1a1a1a; }
+  nav button .ico { font-size: 22px; line-height: 1; }
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: flex-end;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: #fff;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .modal-header h2 { font-size: 20px; }
+  .close-btn {
+    background: #e5e5ea;
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    color: #1a1a1a;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { background: #e5e5ea; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #1a1a1a; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 16px 0 8px;
+  }
+  .row-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .photo-item {
+    aspect-ratio: 1;
+    background: #e5e5ea;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-item .del {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: none;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="page-title">Записи</h1>
+  <p id="page-sub">Добро пожаловать!</p>
+</header>
+
+<div class="container">
+  <div id="view-appointments" class="view active">
+    <button class="btn" onclick="openAppointmentModal()">+ Новая запись</button>
+    <div id="appointments-list"></div>
+  </div>
+  <div id="view-clients" class="view">
+    <button class="btn" onclick="openClientModal()">+ Новый клиент</button>
+    <div id="clients-list"></div>
+  </div>
+  <div id="view-services" class="view">
+    <button class="btn" onclick="openServiceModal()">+ Новая услуга</button>
+    <div id="services-list"></div>
+  </div>
+  <div id="view-materials" class="view">
+    <button class="btn" onclick="openMaterialModal()">+ Новый материал</button>
+    <div id="materials-list"></div>
+  </div>
+  <div id="view-portfolio" class="view">
+    <button class="btn" onclick="document.getElementById('photo-input').click()">+ Добавить фото</button>
+    <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="addPhoto(event)">
+    <div id="portfolio-grid" class="photo-grid"></div>
+  </div>
+</div>
+
+<nav>
+  <button class="active" onclick="switchView('appointments', this, 'Записи', 'Расписание визитов')">
+    <span class="ico">📅</span>Записи
+  </button>
+  <button onclick="switchView('clients', this, 'Клиенты', 'База клиентов и рецепты')">
+    <span class="ico">👥</span>Клиенты
+  </button>
+  <button onclick="switchView('services', this, 'Услуги', 'Прайс-лист')">
+    <span class="ico">✂️</span>Услуги
+  </button>
+  <button onclick="switchView('materials', this, 'Материалы', 'Учёт расходников')">
+    <span class="ico">📦</span>Материалы
+  </button>
+  <button onclick="switchView('portfolio', this, 'Портфолио', 'Галерея работ')">
+    <span class="ico">📸</span>Работы
+  </button>
+</nav>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-title">Добавить</h2>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const DB = { clients: [], services: [], appointments: [], materials: [], recipes: [], portfolio: [] };
+function load() {
+  const saved = localStorage.getItem('salon_db');
+  if (saved) Object.assign(DB, JSON.parse(saved));
+}
+function save() { localStorage.setItem('salon_db', JSON.stringify(DB)); }
+load();
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const escapeHtml = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmtDate = (iso) => { if (!iso) return ''; const d = new Date(iso); return d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }); };
+
+function switchView(name, btn, title, sub) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('page-sub').textContent = sub;
+  renderAll();
+}
+
+function openModal(title, html) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+function openClientModal(id) {
+  const c = id ? DB.clients.find(x => x.id === id) : {};
+  openModal(id ? 'Клиент' : 'Новый клиент', `
+    <label>Фамилия</label>
+    <input id="c-last" value="${escapeHtml(c.lastName || '')}" placeholder="Иванова">
+    <label>Имя</label>
+    <input id="c-first" value="${escapeHtml(c.firstName || '')}" placeholder="Анна">
+    <label>Отчество</label>
+    <input id="c-middle" value="${escapeHtml(c.middleName || '')}" placeholder="Петровна">
+    <label>Телефон</label>
+    <input id="c-phone" type="tel" value="${escapeHtml(c.phone || '')}" placeholder="+7 900 000-00-00">
+    <label>Заметки</label>
+    <textarea id="c-notes" placeholder="Аллергии, предпочтения...">${escapeHtml(c.notes || '')}</textarea>
+    <button class="btn" onclick="saveClient('${id || ''}')">Сохранить</button>
+    ${id ? `<button class="btn danger" onclick="deleteClient('${id}')">Удалить клиента</button>` : ''}
+  `);
+}
+
+function saveClient(id) {
+  const data = {
+    lastName: document.getElementById('c-last').value.trim(),
+    firstName: document.getElementById('c-first').value.trim(),
+    middleName: document.getElementById('c-middle').value.trim(),
+    phone: document.getElementById('c-phone').value.trim(),
+    notes: document.getElementById('c-notes').value.trim()
+  };
+  if (!data.lastName && !data.firstName) return alert('Введите хотя бы имя');
+  if (id) Object.assign(DB.clients.find(x => x.id === id), data);
+  else DB.clients.push({ id: uid(), ...data, createdAt: new Date().toISOString() });
+  save(); closeModal(); renderAll();
+}
+
+function deleteClient(id) {
+  if (!confirm('Удалить клиента и все его записи?')) return;
+  DB.clients = DB.clients.filter(x => x.id !== id);
+  DB.appointments = DB.appointments.filter(a => a.clientId !== id);
+  DB.recipes = DB.recipes.filter(r => r.clientId !== id);
+  save(); closeModal(); renderAll();
+}
+
+function renderClients() {
+  const el = document.getElementById('clients-list');
+  if (!DB.clients.length) { el.innerHTML = `<div class="empty"><div class="icon">👥</div>Пока нет клиентов</div>`; return; }
+  el.innerHTML = DB.clients.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || '')).map(c => `
+    <div class="card">
+      <div class="card-row">
+        <div>
+          <h3>${escapeHtml([c.lastName, c.firstName, c.middleName].filter(Boolean).join(' '))}</h3>
+          <div class="sub">${escapeHtml(c.phone || 'без телефона')}</div>
+        </div>
+      </div>
+      ${c.notes ? `<div class="meta">📝 ${escapeHtml(c.notes)}</div>` : ''}
+      <div class="row-actions">
+        <button class="btn btn-small secondary" onclick="openClientModal('${c.id}')">Редактировать</button>
+        <button class="btn btn-small secondary" onclick="openRecipeModal('${c.id}')">💄 Рецепты</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openRecipeModal(clientId) {
+  const c = DB.clients.find(x => x.id === clientId);
+  const recipes = DB.recipes.filter(r => r.clientId === clientId);
+  const listHtml = recipes.length ? recipes.map(r => `
+    <div class="card">
+      <h3>${escapeHtml(r.title)}</h3>
+      <div class="meta">${fmtDate(r.date)}</div>
+      <div style="margin-top:8px; white-space:pre-wrap;">${escapeHtml(r.formula)}</div>
+      ${r.notes ? `<div class="meta">📝 ${escapeHtml(r.notes)}</div>` : ''}
+      <div class="row-actions">
+        <button class="btn btn-small danger" onclick="deleteRecipe('${r.id}', '${clientId}')">Удалить</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Нет рецептов</div>';
+  openModal('Рецепты — ' + escapeHtml(c.firstName), `
+    ${listHtml}
+    <div class="section-title">Добавить рецепт</div>
+    <label>Название</label>
+    <input id="r-title" placeholder="Окрашивание в блонд">
+    <label>Формула / состав</label>
+    <textarea id="r-formula" placeholder="Estel 10/0 + 9% оксид 1:2"></textarea>
+    <label>Заметки</label>
+    <textarea id="r-notes" placeholder="Результат, особенности"></textarea>
+    <button class="btn" onclick="saveRecipe('${clientId}')">Добавить рецепт</button>
+  `);
+}
+
+function saveRecipe(clientId) {
+  const title = document.getElementById('r-title').value.trim();
+  const formula = document.getElementById('r-formula').value.trim();
+  if (!title) return alert('Введите название');
+  DB.recipes.push({ id: uid(), clientId, title, formula, notes: document.getElementById('r-notes').value.trim(), date: new Date().toISOString() });
+  save(); openRecipeModal(clientId);
+}
+
+function deleteRecipe(id, clientId) {
+  if (!confirm('Удалить рецепт?')) return;
+  DB.recipes = DB.recipes.filter(r => r.id !== id);
+  save(); openRecipeModal(clientId);
+}
+
+function openServiceModal(id) {
+  const s = id ? DB.services.find(x => x.id === id) : {};
+  openModal(id ? 'Услуга' : 'Новая услуга', `
+    <label>Название</label>
+    <input id="s-name" value="${escapeHtml(s.name || '')}" placeholder="Стрижка женская">
+    <label>Цена, ₽</label>
+    <input id="s-price" type="number" value="${s.price || ''}" placeholder="1500">
+    <label>Длительность, мин</label>
+    <input id="s-duration" type="number" value="${s.duration || ''}" placeholder="60">
+    <button class="btn" onclick="saveService('${id || ''}')">Сохранить</button>
+    ${id ? `<button class="btn danger" onclick="deleteService('${id}')">Удалить</button>` : ''}
+  `);
+}
+
+function saveService(id) {
+  const name = document.getElementById('s-name').value.trim();
+  if (!name) return alert('Введите название');
+  const data = { name, price: +document.getElementById('s-price').value || 0, duration: +document.getElementById('s-duration').value || 0 };
+  if (id) Object.assign(DB.services.find(x => x.id === id), data);
+  else DB.services.push({ id: uid(), ...data });
+  save(); closeModal(); renderAll();
+}
+
+function deleteService(id) {
+  if (!confirm('Удалить услугу?')) return;
+  DB.services = DB.services.filter(x => x.id !== id);
+  save(); closeModal(); renderAll();
+}
+
+function renderServices() {
+  const el = document.getElementById('services-list');
+  if (!DB.services.length) { el.innerHTML = `<div class="empty"><div class="icon">✂️</div>Добавьте первую услугу</div>`; return; }
+  el.innerHTML = DB.services.map(s => `
+    <div class="card">
+      <div class="card-row">
+        <div>
+          <h3>${escapeHtml(s.name)}</h3>
+          <div class="sub">${s.duration ? s.duration + ' мин' : ''}</div>
+        </div>
+        <div class="price">${s.price} ₽</div>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-small secondary" onclick="openServiceModal('${s.id}')">Изменить</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openMaterialModal(id) {
+  const m = id ? DB.materials.find(x => x.id === id) : {};
+  openModal(id ? 'Материал' : 'Новый материал', `
+    <label>Название</label>
+    <input id="m-name" value="${escapeHtml(m.name || '')}" placeholder="Краска Estel 7/0">
+    <label>Единица измерения</label>
+    <input id="m-unit" value="${escapeHtml(m.unit || '')}" placeholder="мл, г, шт">
+    <label>Остаток</label>
+    <input id="m-qty" type="number" step="0.1" value="${m.quantity ?? ''}" placeholder="500">
+    <label>Цена за единицу, ₽</label>
+    <input id="m-price" type="number" step="0.01" value="${m.price ?? ''}" placeholder="2.5">
+    <button class="btn" onclick="saveMaterial('${id || ''}')">Сохранить</button>
+    ${id ? `<button class="btn danger" onclick="deleteMaterial('${id}')">Удалить</button>` : ''}
+  `);
+}
+
+function saveMaterial(id) {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) return alert('Введите название');
+  const data = {
+    name,
+    unit: document.getElementById('m-unit').value.trim() || 'шт',
+    quantity: +document.getElementById('m-qty').value || 0,
+    price: +document.getElementById('m-price').value || 0
+  };
+  if (id) Object.assign(DB.materials.find(x => x.id === id), data);
+  else DB.materials.push({ id: uid(), ...data });
+  save(); closeModal(); renderAll();
+}
+
+function deleteMaterial(id) {
+  if (!confirm('Удалить материал?')) return;
+  DB.materials = DB.materials.filter(x => x.id !== id);
+  save(); closeModal(); renderAll();
+}
+
+function renderMaterials() {
+  const el = document.getElementById('materials-list');
+  if (!DB.materials.length) { el.innerHTML = `<div class="empty"><div class="icon">📦</div>Склад пуст</div>`; return; }
+  el.innerHTML = DB.materials.map(m => {
+    const low = m.quantity <= 5;
+    return `
+      <div class="card">
+        <div class="card-row">
+          <div>
+            <h3>${escapeHtml(m.name)}</h3>
+            <div class="sub">${m.quantity} ${escapeHtml(m.unit)}${m.price ? ' · ' + m.price + ' ₽/' + escapeHtml(m.unit) : ''}</div>
+          </div>
+          ${low ? '<div class="chip" style="background:#ffe5e5;color:#ff3b30">мало</div>' : ''}
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-small secondary" onclick="openMaterialModal('${m.id}')">Изменить</button>
+          <button class="btn btn-small secondary" onclick="useMaterial('${m.id}')">− Списать</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function useMaterial(id) {
+  const m = DB.materials.find(x => x.id === id);
+  const amount = parseFloat(prompt(`Сколько списать (${m.unit})?`, '10'));
+  if (!amount || amount <= 0) return;
+  m.quantity = Math.max(0, +(m.quantity - amount).toFixed(2));
+  save(); renderAll();
+}
+
+function openAppointmentModal(id) {
+  const a = id ? DB.appointments.find(x => x.id === id) : {};
+  const clientOpts = DB.clients.map(c => `<option value="${c.id}" ${a.clientId === c.id ? 'selected' : ''}>${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' '))}</option>`).join('');
+  const serviceCheckboxes = DB.services.map(s => `
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:15px;color:#1a1a1a;">
+      <input type="checkbox" value="${s.id}" ${a.serviceIds?.includes(s.id) ? 'checked' : ''} style="width:auto;margin:0;" class="svc-check">
+      ${escapeHtml(s.name)} — ${s.price} ₽
+    </label>
+  `).join('');
+  const defaultDate = a.date ? new Date(a.date) : new Date();
+  const dateStr = defaultDate.toISOString().slice(0, 10);
+  const timeStr = defaultDate.toTimeString().slice(0, 5);
+  openModal(id ? 'Запись' : 'Новая запись', `
+    <label>Клиент</label>
+    <select id="a-client"><option value="">— выберите —</option>${clientOpts}</select>
+    <label>Дата</label>
+    <input id="a-date" type="date" value="${dateStr}">
+    <label>Время</label>
+    <input id="a-time" type="time" value="${timeStr}">
+    <div class="section-title">Услуги</div>
+    ${serviceCheckboxes || '<div class="sub" style="color:#8e8e93;font-size:14px;">Сначала добавьте услуги</div>'}
+    <label style="margin-top:12px;">Заметки</label>
+    <textarea id="a-notes" placeholder="Пожелания клиента...">${escapeHtml(a.notes || '')}</textarea>
+    <button class="btn" onclick="saveAppointment('${id || ''}')">Сохранить</button>
+    ${id ? `<button class="btn danger" onclick="deleteAppointment('${id}')">Удалить запись</button>` : ''}
+  `);
+}
+
+function saveAppointment(id) {
+  const clientId = document.getElementById('a-client').value;
+  if (!clientId) return alert('Выберите клиента');
+  const date = document.getElementById('a-date').value;
+  const time = document.getElementById('a-time').value;
+  if (!date || !time) return alert('Укажите дату и время');
+  const serviceIds = [...document.querySelectorAll('.svc-check:checked')].map(c => c.value);
+  const data = { clientId, date: new Date(date + 'T' + time).toISOString(), serviceIds, notes: document.getElementById('a-notes').value.trim(), status: 'planned' };
+  if (id) Object.assign(DB.appointments.find(x => x.id === id), data);
+  else DB.appointments.push({ id: uid(), ...data });
+  save(); closeModal(); renderAll();
+}
+
+function deleteAppointment(id) {
+  if (!confirm('Удалить запись?')) return;
+  DB.appointments = DB.appointments.filter(x => x.id !== id);
+  save(); closeModal(); renderAll();
+}
+
+function renderAppointments() {
+  const el = document.getElementById('appointments-list');
+  const list = DB.appointments.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (!list.length) { el.innerHTML = `<div class="empty"><div class="icon">📅</div>Записей пока нет</div>`; return; }
+  const groups = {};
+  list.forEach(a => {
+    const key = new Date(a.date).toDateString();
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(a);
+  });
+  el.innerHTML = Object.entries(groups).map(([key, items]) => {
+    const dateLabel = new Date(items[0].date).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+    return `
+      <div class="section-title">${dateLabel}</div>
+      ${items.map(a => {
+        const c = DB.clients.find(x => x.id === a.clientId) || {};
+        const services = (a.serviceIds || []).map(sid => DB.services.find(s => s.id === sid)).filter(Boolean);
+        const total = services.reduce((s, x) => s + x.price, 0);
+        const time = new Date(a.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="card">
+            <div class="card-row">
+              <div style="flex:1">
+                <h3>${time} · ${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' ') || 'Клиент')}</h3>
+                <div class="sub">${escapeHtml(c.phone || '')}</div>
+                ${services.length ? `<div class="chips">${services.map(s => `<span class="chip">${escapeHtml(s.name)}</span>`).join('')}</div>` : ''}
+                ${a.notes ? `<div class="meta">📝 ${escapeHtml(a.notes)}</div>` : ''}
+              </div>
+              ${total ? `<div class="price">${total} ₽</div>` : ''}
+            </div>
+            <div class="row-actions">
+              <button class="btn btn-small secondary" onclick="openAppointmentModal('${a.id}')">Изменить</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    `;
+  }).join('');
+}
+
+function addPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    DB.portfolio.push({ id: uid(), data: e.target.result, date: new Date().toISOString() });
+    save(); renderPortfolio();
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function deletePhoto(id) {
+  if (!confirm('Удалить фото?')) return;
+  DB.portfolio = DB.portfolio.filter(p => p.id !== id);
+  save(); renderPortfolio();
+}
+
+function renderPortfolio() {
+  const el = document.getElementById('portfolio-grid');
+  if (!DB.portfolio.length) { el.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">📸</div>Добавьте фото работ</div>`; return; }
+  el.innerHTML = DB.portfolio.map(p => `
+    <div class="photo-item">
+      <img src="${p.data}" alt="">
+      <button class="del" onclick="deletePhoto('${p.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function renderAll() {
+  renderAppointments();
+  renderClients();
+  renderServices();
+  renderMaterials();
+  renderPortfolio();
+}
+renderAll();
+</script>
+
+</body>
+</html>
