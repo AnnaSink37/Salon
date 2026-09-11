@@ -9,7 +9,7 @@
 <title>Мой Салон</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif; background: #f2f2f7; color: #1c1c1e; padding-bottom: 110px; min-height: 100vh; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif; background: #f2f2f7; color: #1c1c1e; padding-bottom: 130px; min-height: 100vh; }
   header { background: #1a1a1a; color: #fff; padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100; padding-top: max(20px, env(safe-area-inset-top)); }
   header h1 { font-size: 22px; font-weight: 700; }
   header p { font-size: 13px; opacity: 0.6; margin-top: 2px; }
@@ -34,7 +34,7 @@
   input:focus, textarea:focus, select:focus { outline: none; border-color: #1a1a1a; }
   label { display: block; font-size: 13px; color: #8e8e93; margin-bottom: 4px; font-weight: 500; }
   textarea { resize: vertical; min-height: 80px; }
-  nav { position: fixed; bottom: 10px; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid #e5e5ea; display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+  nav { position: fixed; bottom: 15px; left: 10px; right: 10px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid #e5e5ea; border-radius: 20px; display: flex; padding: 6px 4px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
   nav button { flex: 1; background: none; border: none; padding: 8px 2px 6px; font-size: 9px; color: #8e8e93; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
   nav button.active { color: #1a1a1a; }
   nav button .ico { font-size: 20px; line-height: 1; }
@@ -62,7 +62,6 @@
   .stat-big { text-align: center; padding: 20px 0; }
   .stat-big .label { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
   .stat-big .value { font-size: 36px; font-weight: 800; color: #1a1a1a; margin-top: 4px; }
-  .stat-big .value.green { color: #34c759; }
   .stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f2f2f7; font-size: 15px; }
   .stat-row:last-child { border-bottom: none; }
   .stat-row .name { color: #1c1c1e; }
@@ -72,6 +71,23 @@
   .price-input-row .svc-name { flex: 1; font-size: 15px; }
   .price-input-row .price-field { width: 90px; margin: 0; padding: 6px 8px; font-size: 14px; }
   .price-input-row .cur { font-size: 14px; color: #8e8e93; }
+  .calendar { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .cal-header h3 { font-size: 18px; text-transform: capitalize; }
+  .cal-header button { background: #e5e5ea; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; color: #1a1a1a; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 11px; color: #8e8e93; font-weight: 600; padding: 6px 0; text-transform: uppercase; }
+  .cal-day { aspect-ratio: 1; border: none; border-radius: 50%; background: #f2f2f7; color: #8e8e93; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+  .cal-day.empty-day { background: transparent; cursor: default; }
+  .cal-day.has-appt { background: #34c759; color: #fff; font-weight: 700; }
+  .cal-day.today { box-shadow: 0 0 0 2px #007aff inset; color: #007aff; font-weight: 700; }
+  .cal-day.has-appt.today { color: #fff; }
+  .cal-day.selected { background: #1a1a1a; color: #fff; }
+  .cal-day.has-appt.selected { background: #1a1a1a; }
+  .day-detail { margin-top: 8px; }
+  .day-summary { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .day-summary .line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; }
+  .day-summary .line.total { border-top: 2px solid #f2f2f7; margin-top: 8px; padding-top: 12px; font-weight: 700; font-size: 16px; }
 </style>
 </head>
 <body>
@@ -83,7 +99,8 @@
 <div class="container">
   <div id="view-appointments" class="view active">
     <button class="btn" onclick="openAppointmentModal()">+ Новая запись</button>
-    <div id="appointments-list"></div>
+    <div id="calendar-container"></div>
+    <div id="day-detail" class="day-detail"></div>
   </div>
   <div id="view-clients" class="view">
     <button class="btn" onclick="openClientModal()">+ Новый клиент</button>
@@ -146,6 +163,9 @@
 
 <script>
 const DB = { clients: [], services: [], appointments: [], materials: [], recipes: [], portfolio: [], materialUsages: [] };
+let selectedDate = new Date().toDateString();
+let currentMonth = new Date();
+
 function load() {
   const saved = localStorage.getItem('salon_db');
   if (saved) Object.assign(DB, JSON.parse(saved));
@@ -174,7 +194,8 @@ function openModal(title, html) {
   document.getElementById('modal').classList.add('active');
 }
 function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
+</script>
+<script>
 /* ===== КЛИЕНТЫ ===== */
 function openClientModal(id) {
   const c = id ? DB.clients.find(x => x.id === id) : {};
@@ -397,6 +418,126 @@ function useMaterial(id) {
 }
 </script>
  <script>
+/* ===== КАЛЕНДАРЬ ===== */
+function changeMonth(delta) {
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + delta, 1);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const el = document.getElementById('calendar-container');
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  let startDow = firstDay.getDay() - 1;
+  if (startDow < 0) startDow = 6;
+  const todayStr = new Date().toDateString();
+  const apptDates = new Set(DB.appointments.map(a => new Date(a.date).toDateString()));
+
+  let daysHtml = '';
+  for (let i = 0; i < startDow; i++) {
+    daysHtml += `<div class="cal-day empty-day"></div>`;
+  }
+  for (let d = 1; d <= lastDay; d++) {
+    const dateObj = new Date(year, month, d);
+    const dateStr = dateObj.toDateString();
+    let cls = 'cal-day';
+    if (apptDates.has(dateStr)) cls += ' has-appt';
+    if (dateStr === todayStr) cls += ' today';
+    if (dateStr === selectedDate) cls += ' selected';
+    daysHtml += `<button class="${cls}" onclick="selectDate('${dateStr}', ${year}, ${month}, ${d})">${d}</button>`;
+  }
+
+  el.innerHTML = `
+    <div class="calendar">
+      <div class="cal-header">
+        <button onclick="changeMonth(-1)">◀</button>
+        <h3>${monthNames[month]} ${year}</h3>
+        <button onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow">Пн</div>
+        <div class="cal-dow">Вт</div>
+        <div class="cal-dow">Ср</div>
+        <div class="cal-dow">Чт</div>
+        <div class="cal-dow">Пт</div>
+        <div class="cal-dow">Сб</div>
+        <div class="cal-dow">Вс</div>
+        ${daysHtml}
+      </div>
+    </div>
+  `;
+  renderDayDetail();
+}
+
+function selectDate(dateStr, y, m, d) {
+  selectedDate = dateStr;
+  renderCalendar();
+}
+
+function renderDayDetail() {
+  const el = document.getElementById('day-detail');
+  const sel = new Date(selectedDate);
+  const dayAppts = DB.appointments.filter(a => new Date(a.date).toDateString() === selectedDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const dateLabel = sel.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  if (!dayAppts.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">📅</div>На этот день записей нет</div>`;
+    return;
+  }
+
+  let totalIncome = 0;
+  let totalMaterials = 0;
+  let doneCount = 0;
+
+  const apptsHtml = dayAppts.map(a => {
+    const c = DB.clients.find(x => x.id === a.clientId) || {};
+    const services = (a.serviceIds || []).map(sid => DB.services.find(s => s.id === sid)).filter(Boolean);
+    const total = getAppointmentTotal(a);
+    const time = new Date(a.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const matsCost = getApptMaterialsCost(a.id);
+    if (a.status === 'done') { totalIncome += total; totalMaterials += matsCost; doneCount++; }
+    let statusChip = '';
+    if (a.status === 'done') statusChip = '<span class="chip green">выполнена</span>';
+    else if (a.status === 'cancelled') statusChip = '<span class="chip red">отменена</span>';
+    else statusChip = '<span class="chip yellow">запланирована</span>';
+    const matLine = matsCost > 0 ? `<div class="meta">📦 Материалы: ${matsCost.toLocaleString('ru-RU')} ₽</div>` : `<div class="meta">📦 Материалы: —</div>`;
+    return `
+      <div class="card">
+        <div class="card-row">
+          <div style="flex:1">
+            <h3>${time} · ${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' ') || 'Клиент')}</h3>
+            <div class="sub">${escapeHtml(c.phone || '')}</div>
+            <div class="chips">${statusChip}</div>
+            ${services.length ? `<div class="chips">${services.map(s => `<span class="chip">${escapeHtml(s.name)}</span>`).join('')}</div>` : ''}
+            ${matLine}
+            ${a.notes ? `<div class="meta">📝 ${escapeHtml(a.notes)}</div>` : ''}
+          </div>
+          ${total ? `<div class="price">${total.toLocaleString('ru-RU')} ₽</div>` : ''}
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-small secondary" onclick="openAppointmentModal('${a.id}')">Изменить</button>
+          ${a.status === 'done' ? `<button class="btn btn-small secondary" onclick="openMaterialsModal('${a.id}')">📦 Материалы</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="section-title" style="text-transform: capitalize;">${dateLabel}</div>
+    ${apptsHtml}
+    <div class="day-summary">
+      <div class="line"><span>📋 Записей всего</span><span><b>${dayAppts.length}</b></span></div>
+      <div class="line"><span>🟢 Выполнено</span><span><b>${doneCount}</b></span></div>
+      <div class="line"><span>💵 Доход</span><span><b>${totalIncome.toLocaleString('ru-RU')} ₽</b></span></div>
+      <div class="line"><span>📦 Материалы</span><span><b>${totalMaterials.toLocaleString('ru-RU')} ₽</b></span></div>
+      <div class="line total"><span>💰 Прибыль</span><span style="color:#34c759">${(totalIncome - totalMaterials).toLocaleString('ru-RU')} ₽</span></div>
+    </div>
+  `;
+}
+
 /* ===== ЗАПИСИ ===== */
 function openAppointmentModal(id) {
   const a = id ? DB.appointments.find(x => x.id === id) : {};
@@ -413,10 +554,17 @@ function openAppointmentModal(id) {
       </div>
     `;
   }).join('') : '<div class="sub" style="color:#8e8e93;font-size:14px;">Сначала добавьте услуги</div>';
-  const defaultDate = a.date ? new Date(a.date) : new Date();
-  const dateStr = defaultDate.toISOString().slice(0, 10);
-  const timeStr = defaultDate.toTimeString().slice(0, 5);
+
+  let defaultDate;
+  if (a.date) defaultDate = new Date(a.date);
+  else {
+    const sd = new Date(selectedDate);
+    defaultDate = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate(), 12, 0);
+  }
+  const dateStr = defaultDate.getFullYear() + '-' + String(defaultDate.getMonth() + 1).padStart(2, '0') + '-' + String(defaultDate.getDate()).padStart(2, '0');
+  const timeStr = String(defaultDate.getHours()).padStart(2, '0') + ':' + String(defaultDate.getMinutes()).padStart(2, '0');
   const status = a.status || 'planned';
+
   openModal(id ? 'Запись' : 'Новая запись', `
     <label>Клиент</label>
     <select id="a-client"><option value="">— выберите —</option>${clientOpts}</select>
@@ -474,6 +622,9 @@ function saveAppointment(id) {
   };
   if (id) Object.assign(DB.appointments.find(x => x.id === id), data);
   else DB.appointments.push({ id: uid(), ...data });
+  const newDate = new Date(data.date).toDateString();
+  selectedDate = newDate;
+  currentMonth = new Date(data.date);
   save(); closeModal(); renderAll();
 }
 
@@ -487,47 +638,65 @@ function getAppointmentTotal(a) {
   return (a.serviceIds || []).reduce((sum, sid) => sum + (a.customPrices?.[sid] ?? DB.services.find(s => s.id === sid)?.price ?? 0), 0);
 }
 
-function renderAppointments() {
-  const el = document.getElementById('appointments-list');
-  const list = DB.appointments.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-  if (!list.length) { el.innerHTML = `<div class="empty"><div class="icon">📅</div>Записей пока нет</div>`; return; }
-  const groups = {};
-  list.forEach(a => { const key = new Date(a.date).toDateString(); if (!groups[key]) groups[key] = []; groups[key].push(a); });
-  el.innerHTML = Object.entries(groups).map(([key, items]) => {
-    const dateLabel = new Date(items[0].date).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
-    return `
-      <div class="section-title">${dateLabel}</div>
-      ${items.map(a => {
-        const c = DB.clients.find(x => x.id === a.clientId) || {};
-        const services = (a.serviceIds || []).map(sid => DB.services.find(s => s.id === sid)).filter(Boolean);
-        const total = getAppointmentTotal(a);
-        const time = new Date(a.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        let statusChip = '';
-        if (a.status === 'done') statusChip = '<span class="chip green">выполнена</span>';
-        else if (a.status === 'cancelled') statusChip = '<span class="chip red">отменена</span>';
-        else statusChip = '<span class="chip yellow">запланирована</span>';
-        return `
-          <div class="card">
-            <div class="card-row">
-              <div style="flex:1">
-                <h3>${time} · ${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' ') || 'Клиент')}</h3>
-                <div class="sub">${escapeHtml(c.phone || '')}</div>
-                <div class="chips">${statusChip}</div>
-                ${services.length ? `<div class="chips">${services.map(s => `<span class="chip">${escapeHtml(s.name)}</span>`).join('')}</div>` : ''}
-                ${a.notes ? `<div class="meta">📝 ${escapeHtml(a.notes)}</div>` : ''}
-              </div>
-              ${total ? `<div class="price">${total} ₽</div>` : ''}
-            </div>
-            <div class="row-actions">
-              <button class="btn btn-small secondary" onclick="openAppointmentModal('${a.id}')">Изменить</button>
-            </div>
-          </div>
-        `;
-      }).join('')}
-    `;
-  }).join('');
+/* ===== СПИСАНИЕ МАТЕРИАЛОВ НА ЗАПИСЬ ===== */
+function getApptMaterialsCost(apptId) {
+  return DB.materialUsages.filter(u => u.apptId === apptId).reduce((s, u) => s + (u.amount * (u.price || 0)), 0);
 }
 
+function openMaterialsModal(apptId) {
+  if (!DB.materials.length) {
+    return alert('Сначала добавьте материалы в раздел «Материалы»');
+  }
+  const existing = DB.materialUsages.filter(u => u.apptId === apptId);
+  const rowsHtml = DB.materials.map(m => {
+    const used = existing.filter(u => u.materialId === m.id).reduce((s, u) => s + u.amount, 0);
+    return `
+      <div class="price-input-row">
+        <input type="checkbox" value="${m.id}" ${used > 0 ? 'checked' : ''} class="mat-check" data-unit="${escapeHtml(m.unit)}" onchange="toggleMatInput(this)">
+        <span class="svc-name">${escapeHtml(m.name)} <span style="color:#8e8e93;font-size:12px;">(ост. ${m.quantity} ${escapeHtml(m.unit)})</span></span>
+        <input type="number" step="0.1" class="price-field mat-field" value="${used > 0 ? used : ''}" ${used > 0 ? '' : 'disabled'} placeholder="0">
+        <span class="cur">${escapeHtml(m.unit)}</span>
+      </div>
+    `;
+  }).join('');
+  openModal('Списание материалов', `
+    <div class="sub" style="margin-bottom:12px;font-size:14px;">Отметьте материалы, которые использовали для этой записи:</div>
+    ${rowsHtml}
+    <button class="btn" onclick="saveMaterialsForAppt('${apptId}')">Сохранить списание</button>
+  `);
+}
+
+function toggleMatInput(checkbox) {
+  const row = checkbox.closest('.price-input-row');
+  const field = row.querySelector('.mat-field');
+  field.disabled = !checkbox.checked;
+  if (checkbox.checked && !field.value) field.value = '';
+}
+
+function saveMaterialsForAppt(apptId) {
+  const existing = DB.materialUsages.filter(u => u.apptId === apptId);
+  existing.forEach(u => {
+    const m = DB.materials.find(x => x.id === u.materialId);
+    if (m) m.quantity = +(m.quantity + u.amount).toFixed(2);
+  });
+  DB.materialUsages = DB.materialUsages.filter(u => u.apptId !== apptId);
+  let count = 0;
+  document.querySelectorAll('.mat-check:checked').forEach(cb => {
+    const mid = cb.value;
+    const row = cb.closest('.price-input-row');
+    const amount = parseFloat(row.querySelector('.mat-field').value);
+    if (!amount || amount <= 0) return;
+    const m = DB.materials.find(x => x.id === mid);
+    if (!m) return;
+    if (m.quantity < amount) { alert(`Недостаточно материала «${m.name}». Остаток: ${m.quantity} ${m.unit}`); return; }
+    m.quantity = +(m.quantity - amount).toFixed(2);
+    DB.materialUsages.push({ id: uid(), apptId, materialId: mid, amount, price: m.price, date: new Date().toISOString() });
+    count++;
+  });
+  save(); closeModal(); renderAll();
+}
+</script>
+ <script>
 /* ===== ДОХОДЫ ===== */
 let incomePeriod = 'month';
 function setIncomePeriod(period, btn) {
@@ -568,7 +737,7 @@ function renderIncome() {
   const income = doneAppts.reduce((s, a) => s + getAppointmentTotal(a), 0);
   const materialsCost = DB.materialUsages.filter(u => {
     const d = new Date(u.date);
-    return d >= start && d <= end;
+    return d >= start && d <= end && u.apptId;
   }).reduce((s, u) => s + (u.amount * (u.price || 0)), 0);
   const profit = income - materialsCost;
   const avg = doneAppts.length ? Math.round(income / doneAppts.length) : 0;
@@ -581,7 +750,7 @@ function renderIncome() {
         <div class="value">${income.toLocaleString('ru-RU')} ₽</div>
       </div>
       <div class="stat-row"><span class="name">📦 Материалы</span><span class="num">− ${materialsCost.toLocaleString('ru-RU')} ₽</span></div>
-      <div class="stat-row"><span class="name"><b>💰 Чистая прибыль</b></span><span class="num green" style="color:#34c759">${profit.toLocaleString('ru-RU')} ₽</span></div>
+      <div class="stat-row"><span class="name"><b>💰 Чистая прибыль</b></span><span class="num" style="color:#34c759">${profit.toLocaleString('ru-RU')} ₽</span></div>
       <div class="stat-row"><span class="name">📋 Выполненных записей</span><span class="num">${doneAppts.length}</span></div>
       <div class="stat-row"><span class="name">💳 Средний чек</span><span class="num">${avg.toLocaleString('ru-RU')} ₽</span></div>
     </div>
@@ -591,13 +760,14 @@ function renderIncome() {
       ${doneAppts.sort((a, b) => new Date(b.date) - new Date(a.date)).map(a => {
         const c = DB.clients.find(x => x.id === a.clientId) || {};
         const total = getAppointmentTotal(a);
+        const matsCost = getApptMaterialsCost(a.id);
         const dateStr = new Date(a.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
         return `
           <div class="card">
             <div class="card-row">
               <div>
                 <h3>${escapeHtml([c.lastName, c.firstName].filter(Boolean).join(' ') || 'Клиент')}</h3>
-                <div class="sub">${dateStr}</div>
+                <div class="sub">${dateStr}${matsCost > 0 ? ' · 📦 ' + matsCost.toLocaleString('ru-RU') + ' ₽' : ''}</div>
               </div>
               <div class="price">${total.toLocaleString('ru-RU')} ₽</div>
             </div>
@@ -640,7 +810,7 @@ function renderPortfolio() {
 
 /* ===== ОБЩИЙ РЕНДЕР ===== */
 function renderAll() {
-  renderAppointments();
+  renderCalendar();
   renderClients();
   renderServices();
   renderMaterials();
